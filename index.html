@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mackenzie Whysker</title>
+<meta name="description" content="Mackenzie Whysker, Canadian actress. Site coming soon.">
+<meta name="theme-color" content="#000000">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#000;
+    --fg:#fff;
+    --grey:#8c8c8c;
+    --line:rgba(255,255,255,0.16);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html,body{
+    height:100%;
+    background:var(--bg);
+    color:var(--fg);
+    overflow-x:hidden;
+  }
+
+  body{
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  ::selection{ background:#fff; color:#000; }
+
+  /* ================= LOADER ================= */
+  #loader{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:opacity .7s ease, transform .8s cubic-bezier(.6,0,.2,1);
+    overflow:hidden;
+  }
+  #loader.is-hidden{
+    opacity:0;
+    transform:translateY(-4%);
+    pointer-events:none;
+  }
+
+  .loader-inner{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:clamp(22px,3.6vw,32px);
+  }
+
+  .flash-glow{
+    position:absolute;
+    top:50%; left:50%;
+    width:min(70vw,680px);
+    height:min(70vw,680px);
+    transform:translate(-50%,-50%) scale(0.9);
+    background:radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 68%);
+    opacity:0.15;
+    pointer-events:none;
+    z-index:0;
+  }
+  .flash-glow.glow-pulse{
+    animation:glowPulse .4s ease-out;
+  }
+  @keyframes glowPulse{
+    0%{ opacity:0.12; transform:translate(-50%,-50%) scale(0.85); }
+    40%{ opacity:0.55; transform:translate(-50%,-50%) scale(1.15); }
+    100%{ opacity:0.15; transform:translate(-50%,-50%) scale(1); }
+  }
+  .flash-glow.glow-pulse-final{
+    animation:glowPulseFinal .7s ease-out;
+  }
+  @keyframes glowPulseFinal{
+    0%{ opacity:0.15; transform:translate(-50%,-50%) scale(0.85); }
+    45%{ opacity:0.85; transform:translate(-50%,-50%) scale(1.32); }
+    100%{ opacity:0.22; transform:translate(-50%,-50%) scale(1.05); }
+  }
+
+  .loader-text{
+    position:relative;
+    z-index:1;
+    font-family:'Archivo Black', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    font-size:clamp(46px,9vw,104px);
+    line-height:1;
+    text-align:center;
+    min-height:1.1em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 20px;
+  }
+  .loader-text.pop{
+    animation:popIn .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn{
+    0%{ opacity:0; transform:scale(0.7); }
+    60%{ opacity:1; transform:scale(1.1); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  .loader-text.pop-final{
+    animation:popInFinal .6s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popInFinal{
+    0%{ opacity:0; transform:scale(0.6); }
+    55%{ opacity:1; transform:scale(1.14); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+
+  .loader-progress{
+    position:relative;
+    z-index:1;
+    display:flex;
+    gap:8px;
+  }
+  .seg{
+    width:26px;
+    height:2px;
+    background:var(--line);
+    transition:background .35s ease;
+  }
+  .seg.filled{ background:#fff; }
+
+  /* ================= MAIN ================= */
+  #main{ }
+
+  .grain{
+    position:fixed;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+    opacity:0.035;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* top bar */
+  .topbar{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:clamp(18px,3vw,28px) clamp(20px,4vw,44px);
+    opacity:0;
+    transform:translateY(-8px);
+    transition:opacity .7s ease, transform .7s ease;
+    transition-delay:.55s;
+  }
+  #main.is-visible .topbar{ opacity:1; transform:translateY(0); }
+
+  .mark{
+    font-family:'Archivo Black', sans-serif;
+    font-size:14px;
+    letter-spacing:0.04em;
+  }
+  .topnav{
+    display:flex;
+    gap:clamp(18px,3vw,32px);
+  }
+  .topnav a{
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--grey);
+    padding-bottom:3px;
+    border-bottom:1px solid transparent;
+    transition:color .25s ease, border-color .25s ease;
+  }
+  .topnav a:hover, .topnav a:focus-visible{
+    color:#fff;
+    border-color:#fff;
+  }
+  .topnav a:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
+
+  /* hero */
+  .hero{
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:120px clamp(20px,5vw,40px) 60px;
+    position:relative;
+    z-index:10;
+  }
+
+  .pop-up{
+    opacity:0;
+    transform:translateY(16px) scale(0.98);
+    transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
+  }
+  #main.is-visible .pop-up{ opacity:1; transform:translateY(0) scale(1); }
+
+  #main.is-visible .d1{ transition-delay:.15s; }
+  #main.is-visible .d2{ transition-delay:.28s; }
+  #main.is-visible .d3{ transition-delay:.40s; }
+  #main.is-visible .d4{ transition-delay:.55s; }
+  #main.is-visible .d5{ transition-delay:.68s; }
+  #main.is-visible .d6{ transition-delay:.80s; }
+
+  .overline{
+    font-size:11px;
+    letter-spacing:0.36em;
+    text-transform:uppercase;
+    color:var(--grey);
+    margin-bottom:clamp(20px,3.5vw,30px);
+  }
+
+  h1{
+    font-family:'Archivo Black', sans-serif;
+    font-weight:400;
+    line-height:0.86;
+    letter-spacing:-0.01em;
+    font-size:clamp(58px,13vw,168px);
+    text-transform:uppercase;
+  }
+  h1 span{ display:block; }
+
+  .rule{
+    width:52px;
+    height:2px;
+    background:#fff;
+    margin:clamp(26px,4vw,36px) auto;
+  }
+
+  .tagline{
+    max-width:520px;
+    margin:0 auto;
+    font-size:clamp(14px,1.7vw,16px);
+    line-height:1.75;
+    font-weight:300;
+    color:#c9c9c9;
+  }
+
+  .credits{
+    margin-top:clamp(14px,2.4vw,20px);
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--grey);
+  }
+
+  .tag{
+    display:inline-block;
+    margin-top:clamp(32px,5vw,44px);
+    padding:10px 22px;
+    border:1px solid var(--line);
+    font-size:11px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+  }
+
+  /* ticker */
+  .ticker{
+    position:relative;
+    z-index:10;
+    width:100%;
+    overflow:hidden;
+    background:#fff;
+    padding:clamp(10px,1.6vw,14px) 0;
+  }
+  .ticker-track{
+    display:flex;
+    width:max-content;
+    animation:scroll 22s linear infinite;
+  }
+  .ticker-track span{
+    display:inline-flex;
+    align-items:center;
+    color:#000;
+    font-size:clamp(12px,1.6vw,14px);
+    font-weight:700;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    padding:0 22px;
+    white-space:nowrap;
+  }
+  .ticker-track span::after{
+    content:"•";
+    margin-left:22px;
+    color:#000;
+  }
+  @keyframes scroll{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+
+  footer{
+    position:relative;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    padding:clamp(36px,6vw,52px) 20px clamp(28px,4vw,36px);
+  }
+  .socials{
+    display:flex;
+    gap:clamp(20px,4vw,36px);
+  }
+  .socials a{
+    font-size:11px;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    color:var(--fg);
+    padding-bottom:3px;
+    border-bottom:1px solid transparent;
+    transition:color .25s ease, border-color .25s ease;
+  }
+  .socials a:hover, .socials a:focus-visible{ border-color:#fff; }
+  .socials a:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
+
+  .copyright{
+    font-size:10px;
+    letter-spacing:0.14em;
+    color:var(--grey);
+  }
+
+  @media (max-width:520px){
+    .topbar{ padding:16px 18px; }
+    .topnav{ gap:14px; }
+    .loader-text{ font-size:clamp(36px,11vw,72px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track{ animation:none; }
+    #loader{ transition:none; }
+    .loader-text.pop, .loader-text.pop-final, .flash-glow.glow-pulse, .flash-glow.glow-pulse-final{ animation:none; }
+    .pop-up, .topbar{ transition:none; opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="flash-glow" id="flashGlow"></div>
+      <div class="loader-text" id="loaderText">M</div>
+      <div class="loader-progress">
+        <span class="seg" data-i="0"></span>
+        <span class="seg" data-i="1"></span>
+        <span class="seg" data-i="2"></span>
+        <span class="seg" data-i="3"></span>
+        <span class="seg" data-i="4"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="grain"></div>
+
+    <header class="topbar">
+      <div class="mark">MW</div>
+      <nav class="topnav">
+        <a href="https://www.instagram.com/mackenzie.whysker" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://www.imdb.com/name/nm18134174/" target="_blank" rel="noopener noreferrer">IMDb</a>
+      </nav>
+    </header>
+
+    <main class="hero">
+      <p class="overline pop-up d1">Canadian Actress · Film &amp; Stage</p>
+      <h1 class="pop-up d2"><span>Mackenzie</span><span>Whysker</span></h1>
+      <div class="rule pop-up d3"></div>
+      <p class="tagline pop-up d4">
+        Trained in the craft of honest, emotionally complex performance —
+        her storytelling moves between screen and stage.
+      </p>
+      <p class="credits pop-up d5">In Case We Forget · The Key Left Behind</p>
+      <span class="tag pop-up d6">Coming Soon</span>
+    </main>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span>
+        <span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span>
+      </div>
+    </div>
+
+    <footer>
+      <div class="socials">
+        <a href="https://www.instagram.com/mackenzie.whysker" target="_blank" rel="noopener noreferrer">@mackenzie.whysker</a>
+        <a href="https://www.imdb.com/name/nm18134174/" target="_blank" rel="noopener noreferrer">IMDb Profile</a>
+      </div>
+      <p class="copyright">© 2026 Mackenzie Whysker. All rights reserved.</p>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  var loaderText = document.getElementById('loaderText');
+  var glow = document.getElementById('flashGlow');
+  var loader = document.getElementById('loader');
+  var main = document.getElementById('main');
+  var segs = document.querySelectorAll('.seg');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function reveal(){
+    loader.classList.add('is-hidden');
+    main.classList.add('is-visible');
+    loader.setAttribute('aria-hidden','true');
+    setTimeout(function(){ loader.style.display = 'none'; }, 800);
+  }
+
+  if(reduce){
+    loaderText.textContent = 'MACKENZIE WHYSKER';
+    segs.forEach(function(s){ s.classList.add('filled'); });
+    setTimeout(reveal, 300);
+    return;
+  }
+
+  var sequence = [
+    { text:'M', dur:150 },
+    { text:'W', dur:150 },
+    { text:'MACKENZIE', dur:230 },
+    { text:'WHYSKER', dur:230 },
+    { text:'MACKENZIE WHYSKER', dur:750 }
+  ];
+
+  function playStep(i){
+    if(i >= sequence.length){
+      setTimeout(reveal, 280);
+      return;
+    }
+    var item = sequence[i];
+    var isFinal = i === sequence.length - 1;
+    loaderText.textContent = item.text;
+
+    loaderText.classList.remove('pop','pop-final');
+    void loaderText.offsetWidth;
+    loaderText.classList.add(isFinal ? 'pop-final' : 'pop');
+
+    /* keep the glow as a single soft accent, not a repeating full flash */
+    if(i === 0 || isFinal){
+      glow.classList.remove('glow-pulse','glow-pulse-final');
+      void glow.offsetWidth;
+      glow.classList.add(isFinal ? 'glow-pulse-final' : 'glow-pulse');
+    }
+
+    segs[i].classList.add('filled');
+
+    setTimeout(function(){ playStep(i+1); }, item.dur);
+  }
+
+  playStep(0);
+})();
+</script>
+
+</body>
+</html>
