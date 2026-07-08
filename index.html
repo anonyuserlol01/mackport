@@ -9,7 +9,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,wght@0,600;1,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="/download.png">
 
 <style>
   :root{
@@ -17,6 +18,9 @@
     --fg:#fff;
     --grey:#8c8c8c;
     --line:rgba(255,255,255,0.16);
+    --accent:#ff2f4c;
+    --rgb-a:#ff2b6e;
+    --rgb-b:#2ff0ff;
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
@@ -34,8 +38,7 @@
   }
 
   a{ color:inherit; text-decoration:none; }
-
-  ::selection{ background:#fff; color:#000; }
+  ::selection{ background:var(--accent); color:#000; }
 
   /* ================= LOADER ================= */
   #loader{
@@ -46,111 +49,137 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    transition:opacity .7s ease, transform .8s cubic-bezier(.6,0,.2,1);
+    transition:opacity .6s ease, transform .7s cubic-bezier(.6,0,.2,1);
     overflow:hidden;
   }
   #loader.is-hidden{
     opacity:0;
-    transform:translateY(-4%);
+    transform:translateY(-3%);
     pointer-events:none;
+  }
+
+  .scanlines{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.05) 0px,
+      rgba(255,255,255,0.05) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity:0.5;
   }
 
   .loader-inner{
     position:relative;
+    z-index:1;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:clamp(22px,3.6vw,32px);
+    gap:clamp(18px,3vw,26px);
   }
 
-  .flash-glow{
-    position:absolute;
-    top:50%; left:50%;
-    width:min(70vw,680px);
-    height:min(70vw,680px);
-    transform:translate(-50%,-50%) scale(0.9);
-    background:radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 68%);
-    opacity:0.15;
-    pointer-events:none;
-    z-index:0;
+  .terminal-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--grey);
   }
-  .flash-glow.glow-pulse{
-    animation:glowPulse .4s ease-out;
+  .cursor{
+    display:inline-block;
+    margin-left:2px;
+    animation:blink 1s step-end infinite;
   }
-  @keyframes glowPulse{
-    0%{ opacity:0.12; transform:translate(-50%,-50%) scale(0.85); }
-    40%{ opacity:0.55; transform:translate(-50%,-50%) scale(1.15); }
-    100%{ opacity:0.15; transform:translate(-50%,-50%) scale(1); }
-  }
-  .flash-glow.glow-pulse-final{
-    animation:glowPulseFinal .7s ease-out;
-  }
-  @keyframes glowPulseFinal{
-    0%{ opacity:0.15; transform:translate(-50%,-50%) scale(0.85); }
-    45%{ opacity:0.85; transform:translate(-50%,-50%) scale(1.32); }
-    100%{ opacity:0.22; transform:translate(-50%,-50%) scale(1.05); }
-  }
+  @keyframes blink{ 50%{ opacity:0; } }
 
-  .loader-text{
+  .glitch-wrap{
     position:relative;
-    z-index:1;
+  }
+  .glitch-wrap.slice{
+    animation:sliceGlitch .32s steps(1);
+  }
+  @keyframes sliceGlitch{
+    0%{ clip-path:inset(0 0 0 0); transform:translateX(0); }
+    15%{ clip-path:inset(8% 0 58% 0); transform:translateX(-6px); }
+    30%{ clip-path:inset(55% 0 6% 0); transform:translateX(6px); }
+    45%{ clip-path:inset(20% 0 40% 0); transform:translateX(-3px); }
+    60%{ clip-path:inset(0 0 0 0); transform:translateX(0); }
+    100%{ clip-path:inset(0 0 0 0); transform:translateX(0); }
+  }
+
+  .glitch-text{
+    position:relative;
+    display:inline-block;
     font-family:'Archivo Black', sans-serif;
     text-transform:uppercase;
-    letter-spacing:0.01em;
-    font-size:clamp(46px,9vw,104px);
+    font-size:clamp(44px,9vw,100px);
     line-height:1;
-    text-align:center;
+    color:#fff;
     min-height:1.1em;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0 20px;
+    text-align:center;
+    padding:0 16px;
   }
-  .loader-text.pop{
-    animation:popIn .2s cubic-bezier(.34,1.56,.64,1);
+  .glitch-text::before,
+  .glitch-text::after{
+    content:attr(data-text);
+    position:absolute;
+    left:0; top:0; width:100%;
+    padding:0 16px;
+    pointer-events:none;
   }
-  @keyframes popIn{
-    0%{ opacity:0; transform:scale(0.7); }
-    60%{ opacity:1; transform:scale(1.1); }
-    100%{ opacity:1; transform:scale(1); }
+  .glitch-text::before{
+    color:var(--rgb-a);
+    mix-blend-mode:screen;
+    opacity:0.7;
+    animation:rgbA .8s steps(2) infinite;
   }
-  .loader-text.pop-final{
-    animation:popInFinal .6s cubic-bezier(.34,1.56,.64,1);
+  .glitch-text::after{
+    color:var(--rgb-b);
+    mix-blend-mode:screen;
+    opacity:0.7;
+    animation:rgbB .9s steps(2) infinite;
   }
-  @keyframes popInFinal{
-    0%{ opacity:0; transform:scale(0.6); }
-    55%{ opacity:1; transform:scale(1.14); }
-    100%{ opacity:1; transform:scale(1); }
+  @keyframes rgbA{
+    0%,100%{ transform:translate(2px,-1px); }
+    25%{ transform:translate(-2px,1px); }
+    50%{ transform:translate(1px,2px); }
+    75%{ transform:translate(-1px,-1px); }
+  }
+  @keyframes rgbB{
+    0%,100%{ transform:translate(-2px,1px); }
+    25%{ transform:translate(2px,-1px); }
+    50%{ transform:translate(-1px,-2px); }
+    75%{ transform:translate(1px,1px); }
   }
 
   .loader-progress{
-    position:relative;
-    z-index:1;
     display:flex;
     gap:8px;
   }
   .seg{
-    width:26px;
+    width:22px;
     height:2px;
     background:var(--line);
-    transition:background .35s ease;
+    transition:background .3s ease;
   }
-  .seg.filled{ background:#fff; }
+  .seg.filled{ background:var(--accent); }
 
   /* ================= MAIN ================= */
-  #main{ }
-
   .grain{
     position:fixed;
     inset:0;
     z-index:5;
     pointer-events:none;
-    opacity:0.035;
+    opacity:0.03;
     mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* top bar */
+  /* masthead bar */
   .topbar{
     position:fixed;
     top:0; left:0; right:0;
@@ -158,11 +187,14 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:clamp(18px,3vw,28px) clamp(20px,4vw,44px);
+    gap:16px;
+    padding:clamp(16px,2.6vw,22px) clamp(20px,4vw,44px);
+    border-bottom:1px solid var(--line);
+    background:#000;
     opacity:0;
     transform:translateY(-8px);
     transition:opacity .7s ease, transform .7s ease;
-    transition-delay:.55s;
+    transition-delay:.5s;
   }
   #main.is-visible .topbar{ opacity:1; transform:translateY(0); }
 
@@ -170,24 +202,32 @@
     font-family:'Archivo Black', sans-serif;
     font-size:14px;
     letter-spacing:0.04em;
+    flex:0 0 auto;
+  }
+  .issue-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--grey);
+    flex:0 0 auto;
+    display:none;
   }
   .topnav{
     display:flex;
-    gap:clamp(18px,3vw,32px);
+    gap:clamp(16px,3vw,28px);
+    flex:0 0 auto;
   }
   .topnav a{
     font-size:11px;
-    letter-spacing:0.22em;
+    letter-spacing:0.2em;
     text-transform:uppercase;
     color:var(--grey);
     padding-bottom:3px;
     border-bottom:1px solid transparent;
     transition:color .25s ease, border-color .25s ease;
   }
-  .topnav a:hover, .topnav a:focus-visible{
-    color:#fff;
-    border-color:#fff;
-  }
+  .topnav a:hover, .topnav a:focus-visible{ color:#fff; border-color:#fff; }
   .topnav a:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
 
   /* hero */
@@ -199,7 +239,7 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding:120px clamp(20px,5vw,40px) 60px;
+    padding:130px clamp(20px,5vw,40px) 70px;
     position:relative;
     z-index:10;
   }
@@ -210,20 +250,40 @@
     transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
   }
   #main.is-visible .pop-up{ opacity:1; transform:translateY(0) scale(1); }
+  #main.is-visible .d1{ transition-delay:.12s; }
+  #main.is-visible .d2{ transition-delay:.24s; }
+  #main.is-visible .d3{ transition-delay:.36s; }
+  #main.is-visible .d4{ transition-delay:.48s; }
+  #main.is-visible .d5{ transition-delay:.62s; }
+  #main.is-visible .d6{ transition-delay:.76s; }
+  #main.is-visible .d7{ transition-delay:.90s; }
 
-  #main.is-visible .d1{ transition-delay:.15s; }
-  #main.is-visible .d2{ transition-delay:.28s; }
-  #main.is-visible .d3{ transition-delay:.40s; }
-  #main.is-visible .d4{ transition-delay:.55s; }
-  #main.is-visible .d5{ transition-delay:.68s; }
-  #main.is-visible .d6{ transition-delay:.80s; }
+  .kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 16px;
+    border:1px solid rgba(255,47,76,0.5);
+    border-radius:999px;
+    font-size:10.5px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:clamp(20px,3.4vw,28px);
+  }
+  .kicker::before{
+    content:"";
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--accent);
+  }
 
   .overline{
     font-size:11px;
     letter-spacing:0.36em;
     text-transform:uppercase;
     color:var(--grey);
-    margin-bottom:clamp(20px,3.5vw,30px);
+    margin-bottom:clamp(20px,3.5vw,28px);
   }
 
   h1{
@@ -231,7 +291,7 @@
     font-weight:400;
     line-height:0.86;
     letter-spacing:-0.01em;
-    font-size:clamp(58px,13vw,168px);
+    font-size:clamp(56px,12.5vw,160px);
     text-transform:uppercase;
   }
   h1 span{ display:block; }
@@ -243,32 +303,55 @@
     margin:clamp(26px,4vw,36px) auto;
   }
 
-  .tagline{
-    max-width:520px;
+  .pull-quote{
+    position:relative;
+    max-width:600px;
     margin:0 auto;
-    font-size:clamp(14px,1.7vw,16px);
-    line-height:1.75;
-    font-weight:300;
-    color:#c9c9c9;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(19px,2.6vw,26px);
+    line-height:1.5;
+    color:#efefef;
+  }
+  .pull-quote .qmark{
+    display:block;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(40px,6vw,58px);
+    color:var(--accent);
+    line-height:1;
+    margin-bottom:4px;
   }
 
-  .credits{
-    margin-top:clamp(14px,2.4vw,20px);
-    font-size:11px;
-    letter-spacing:0.22em;
+  .issue-kicker{
+    margin-top:clamp(28px,4.4vw,38px);
+    font-size:10.5px;
+    letter-spacing:0.28em;
     text-transform:uppercase;
     color:var(--grey);
   }
-
-  .tag{
-    display:inline-block;
-    margin-top:clamp(32px,5vw,44px);
-    padding:10px 22px;
-    border:1px solid var(--line);
-    font-size:11px;
-    letter-spacing:0.3em;
-    text-transform:uppercase;
+  .credits{
+    margin-top:8px;
+    font-size:13px;
+    letter-spacing:0.06em;
+    color:#d8d8d8;
+    font-family:'Fraunces', serif;
+    font-style:italic;
   }
+
+  .stamp{
+    margin-top:clamp(38px,6vw,52px);
+    width:clamp(108px,14vw,140px);
+    height:clamp(108px,14vw,140px);
+    color:#fff;
+  }
+  .stamp .ring{
+    transform-origin:100px 100px;
+    animation:spin 16s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
 
   /* ticker */
   .ticker{
@@ -298,7 +381,7 @@
   .ticker-track span::after{
     content:"•";
     margin-left:22px;
-    color:#000;
+    color:var(--accent);
   }
   @keyframes scroll{
     from{ transform:translateX(0); }
@@ -311,7 +394,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:18px;
+    gap:20px;
     padding:clamp(36px,6vw,52px) 20px clamp(28px,4vw,36px);
   }
   .socials{
@@ -330,22 +413,40 @@
   .socials a:hover, .socials a:focus-visible{ border-color:#fff; }
   .socials a:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
 
+  .barcode{ opacity:0.85; }
+  .barcode-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--grey);
+    text-align:center;
+    margin-top:6px;
+  }
+
   .copyright{
     font-size:10px;
     letter-spacing:0.14em;
     color:var(--grey);
   }
 
+  @media (min-width:640px){
+    .issue-tag{ display:block; }
+  }
+
   @media (max-width:520px){
-    .topbar{ padding:16px 18px; }
-    .topnav{ gap:14px; }
-    .loader-text{ font-size:clamp(36px,11vw,72px); }
+    .topbar{ padding:14px 18px; }
+    .topnav{ gap:12px; }
+    .glitch-text{ font-size:clamp(34px,11vw,64px); }
   }
 
   @media (prefers-reduced-motion: reduce){
     .ticker-track{ animation:none; }
     #loader{ transition:none; }
-    .loader-text.pop, .loader-text.pop-final, .flash-glow.glow-pulse, .flash-glow.glow-pulse-final{ animation:none; }
+    .glitch-wrap.slice{ animation:none; }
+    .glitch-text::before, .glitch-text::after{ animation:none; opacity:0.35; }
+    .cursor{ animation:none; }
+    .stamp .ring{ animation:none; }
     .pop-up, .topbar{ transition:none; opacity:1; transform:none; }
   }
 </style>
@@ -353,9 +454,12 @@
 <body>
 
   <div id="loader">
+    <div class="scanlines"></div>
     <div class="loader-inner">
-      <div class="flash-glow" id="flashGlow"></div>
-      <div class="loader-text" id="loaderText">M</div>
+      <div class="terminal-label">[ decoding signal ]<span class="cursor">_</span></div>
+      <div class="glitch-wrap" id="glitchWrap">
+        <div class="glitch-text" id="glitchText" data-text="M">M</div>
+      </div>
       <div class="loader-progress">
         <span class="seg" data-i="0"></span>
         <span class="seg" data-i="1"></span>
@@ -370,7 +474,8 @@
     <div class="grain"></div>
 
     <header class="topbar">
-      <div class="mark">MW</div>
+      <div class="mark">MW.</div>
+      <div class="issue-tag">N° 01 — Debut</div>
       <nav class="topnav">
         <a href="https://www.instagram.com/mackenzie.whysker" target="_blank" rel="noopener noreferrer">Instagram</a>
         <a href="https://www.imdb.com/name/nm18134174/" target="_blank" rel="noopener noreferrer">IMDb</a>
@@ -378,21 +483,39 @@
     </header>
 
     <main class="hero">
-      <p class="overline pop-up d1">Canadian Actress · Film &amp; Stage</p>
-      <h1 class="pop-up d2"><span>Mackenzie</span><span>Whysker</span></h1>
-      <div class="rule pop-up d3"></div>
-      <p class="tagline pop-up d4">
+      <span class="kicker pop-up d1">Cover Story</span>
+      <p class="overline pop-up d2">Canadian Actress · Film &amp; Stage</p>
+      <h1 class="pop-up d3"><span>Mackenzie</span><span>Whysker</span></h1>
+      <div class="rule pop-up d4"></div>
+
+      <p class="pull-quote pop-up d5">
+        <span class="qmark">“</span>
         Trained in the craft of honest, emotionally complex performance —
         her storytelling moves between screen and stage.
       </p>
-      <p class="credits pop-up d5">In Case We Forget · The Key Left Behind</p>
-      <span class="tag pop-up d6">Coming Soon</span>
+
+      <p class="issue-kicker pop-up d6">In This Issue</p>
+      <p class="credits pop-up d6">In Case We Forget · The Key Left Behind</p>
+
+      <svg class="stamp pop-up d7" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="stampPath" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
+        </defs>
+        <g class="ring">
+          <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text font-family="IBM Plex Mono, monospace" font-size="11.5" letter-spacing="3" fill="currentColor">
+            <textPath href="#stampPath" startOffset="0%">COMING SOON • COMING SOON • COMING SOON • </textPath>
+          </text>
+        </g>
+        <circle cx="100" cy="100" r="54" fill="none" stroke="currentColor" stroke-width="1"/>
+        <text x="100" y="109" text-anchor="middle" font-family="Archivo Black, sans-serif" font-size="22" fill="currentColor">MW</text>
+      </svg>
     </main>
 
     <div class="ticker" aria-hidden="true">
       <div class="ticker-track">
-        <span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span>
-        <span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span><span>Coming Soon</span><span>Canadian Actress</span>
+        <span>Cover Story</span><span>Mackenzie Whysker</span><span>Coming Soon</span><span>Cover Story</span><span>Mackenzie Whysker</span><span>Coming Soon</span>
+        <span>Cover Story</span><span>Mackenzie Whysker</span><span>Coming Soon</span><span>Cover Story</span><span>Mackenzie Whysker</span><span>Coming Soon</span>
       </div>
     </div>
 
@@ -401,14 +524,22 @@
         <a href="https://www.instagram.com/mackenzie.whysker" target="_blank" rel="noopener noreferrer">@mackenzie.whysker</a>
         <a href="https://www.imdb.com/name/nm18134174/" target="_blank" rel="noopener noreferrer">IMDb Profile</a>
       </div>
+
+      <div>
+        <svg class="barcode" width="120" height="34" viewBox="0 0 120 34" aria-hidden="true">
+          <rect x="0" y="0" width="2" height="28" fill="#fff"/><rect x="4" y="0" width="1" height="28" fill="#fff"/><rect x="7" y="0" width="3" height="28" fill="#fff"/><rect x="12" y="0" width="1" height="28" fill="#fff"/><rect x="15" y="0" width="2" height="28" fill="#fff"/><rect x="19" y="0" width="1" height="28" fill="#fff"/><rect x="22" y="0" width="4" height="28" fill="#fff"/><rect x="28" y="0" width="1" height="28" fill="#fff"/><rect x="31" y="0" width="2" height="28" fill="#fff"/><rect x="35" y="0" width="3" height="28" fill="#fff"/><rect x="40" y="0" width="1" height="28" fill="#fff"/><rect x="43" y="0" width="1" height="28" fill="#fff"/><rect x="46" y="0" width="2" height="28" fill="#fff"/><rect x="50" y="0" width="4" height="28" fill="#fff"/><rect x="56" y="0" width="1" height="28" fill="#fff"/><rect x="59" y="0" width="2" height="28" fill="#fff"/><rect x="63" y="0" width="1" height="28" fill="#fff"/><rect x="66" y="0" width="3" height="28" fill="#fff"/><rect x="71" y="0" width="1" height="28" fill="#fff"/><rect x="74" y="0" width="2" height="28" fill="#fff"/><rect x="78" y="0" width="1" height="28" fill="#fff"/><rect x="81" y="0" width="4" height="28" fill="#fff"/><rect x="87" y="0" width="1" height="28" fill="#fff"/><rect x="90" y="0" width="2" height="28" fill="#fff"/><rect x="94" y="0" width="3" height="28" fill="#fff"/><rect x="99" y="0" width="1" height="28" fill="#fff"/><rect x="102" y="0" width="1" height="28" fill="#fff"/><rect x="105" y="0" width="2" height="28" fill="#fff"/><rect x="109" y="0" width="4" height="28" fill="#fff"/><rect x="115" y="0" width="1" height="28" fill="#fff"/>
+        </svg>
+        <p class="barcode-label">Coming Soon</p>
+      </div>
+
       <p class="copyright">© 2026 Mackenzie Whysker. All rights reserved.</p>
     </footer>
   </div>
 
 <script>
 (function(){
-  var loaderText = document.getElementById('loaderText');
-  var glow = document.getElementById('flashGlow');
+  var glitchText = document.getElementById('glitchText');
+  var glitchWrap = document.getElementById('glitchWrap');
   var loader = document.getElementById('loader');
   var main = document.getElementById('main');
   var segs = document.querySelectorAll('.seg');
@@ -418,47 +549,63 @@
     loader.classList.add('is-hidden');
     main.classList.add('is-visible');
     loader.setAttribute('aria-hidden','true');
-    setTimeout(function(){ loader.style.display = 'none'; }, 800);
+    setTimeout(function(){ loader.style.display = 'none'; }, 750);
+  }
+
+  function setGlitchText(t){
+    glitchText.textContent = t;
+    glitchText.setAttribute('data-text', t);
   }
 
   if(reduce){
-    loaderText.textContent = 'MACKENZIE WHYSKER';
+    setGlitchText('MACKENZIE WHYSKER');
     segs.forEach(function(s){ s.classList.add('filled'); });
     setTimeout(reveal, 300);
     return;
   }
 
-  var sequence = [
-    { text:'M', dur:150 },
-    { text:'W', dur:150 },
-    { text:'MACKENZIE', dur:230 },
-    { text:'WHYSKER', dur:230 },
-    { text:'MACKENZIE WHYSKER', dur:750 }
-  ];
+  var pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!#%&*01';
+  var sequence = ['M','W','MACKENZIE','WHYSKER','MACKENZIE WHYSKER'];
+
+  function decode(target, duration, onDone){
+    var frameRate = 40;
+    var totalFrames = Math.max(3, Math.round(duration / frameRate));
+    var lockInterval = Math.max(1, Math.floor(totalFrames / Math.max(target.length,1)));
+    var frame = 0;
+
+    glitchWrap.classList.remove('slice');
+    void glitchWrap.offsetWidth;
+    glitchWrap.classList.add('slice');
+
+    var timer = setInterval(function(){
+      frame++;
+      var lockedCount = Math.min(target.length, Math.floor(frame / lockInterval));
+      var out = '';
+      for(var i=0;i<target.length;i++){
+        if(target[i] === ' '){ out += ' '; continue; }
+        out += (i < lockedCount) ? target[i] : pool[Math.floor(Math.random()*pool.length)];
+      }
+      setGlitchText(out);
+      if(lockedCount >= target.length || frame >= totalFrames){
+        clearInterval(timer);
+        setGlitchText(target);
+        if(onDone) onDone();
+      }
+    }, frameRate);
+  }
 
   function playStep(i){
     if(i >= sequence.length){
-      setTimeout(reveal, 280);
+      setTimeout(reveal, 260);
       return;
     }
-    var item = sequence[i];
     var isFinal = i === sequence.length - 1;
-    loaderText.textContent = item.text;
+    var dur = isFinal ? 520 : (sequence[i].length <= 1 ? 180 : 380);
 
-    loaderText.classList.remove('pop','pop-final');
-    void loaderText.offsetWidth;
-    loaderText.classList.add(isFinal ? 'pop-final' : 'pop');
-
-    /* keep the glow as a single soft accent, not a repeating full flash */
-    if(i === 0 || isFinal){
-      glow.classList.remove('glow-pulse','glow-pulse-final');
-      void glow.offsetWidth;
-      glow.classList.add(isFinal ? 'glow-pulse-final' : 'glow-pulse');
-    }
-
-    segs[i].classList.add('filled');
-
-    setTimeout(function(){ playStep(i+1); }, item.dur);
+    decode(sequence[i], dur, function(){
+      segs[i].classList.add('filled');
+      setTimeout(function(){ playStep(i+1); }, isFinal ? 380 : 90);
+    });
   }
 
   playStep(0);
